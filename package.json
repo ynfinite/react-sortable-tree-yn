@@ -1,5 +1,5 @@
 {
-  "name": "react-sortable-tree",
+  "name": "react-sortable-tree-yn",
   "version": "2.8.0",
   "description": "Drag-and-drop sortable component for nested data and hierarchies",
   "scripts": {
@@ -25,12 +25,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/frontend-collective/react-sortable-tree"
+    "url": "https://github.com/ynfinite/react-sortable-tree-yn"
   },
-  "homepage": "https://frontend-collective.github.io/react-sortable-tree/",
-  "bugs": "https://github.com/frontend-collective/react-sortable-tree/issues",
+  "homepage": "https://github.com/ynfinite/react-sortable-tree-yn",
+  "bugs": "https://github.com/ynfinite/react-sortable-tree-yn/issues",
   "authors": [
-    "Chris Fritz"
+    "Chris Fritz",
+    "Rahmi Serhat",
+    "Markus Claus"
   ],
   "license": "MIT",
   "jest": {
