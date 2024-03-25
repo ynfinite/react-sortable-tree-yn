@@ -1,6 +1,6 @@
 # Note on maintenance
 
-This library is a form of [React Sortable Tree](https://github.com/frontend-collective/react-sortable-tree).
+This library is a fork of [React Sortable Tree](https://github.com/frontend-collective/react-sortable-tree).
 
 <div align="center">
   <img src="https://cloud.githubusercontent.com/assets/4413963/18860410/26f64de8-84b8-11e6-9284-350308eed30a.png"/>
