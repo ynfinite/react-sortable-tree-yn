@@ -722,8 +722,23 @@ function addNodeAtDepthAndIndex({
     (isLastChild && !(node.children && node.children.length))
   ) {
     if (typeof node.children === 'function') {
-      throw new Error('Cannot add to children defined by a function');
-    } else {
+      // throw new Error('Cannot add to children defined by a function');
+      const extraNodeProps = expandParent ? { expanded: true } : {};
+      const nextNode = {
+        ...node,
+
+        ...extraNodeProps,
+        children: [newNode],
+      };
+
+      return {
+        node: nextNode,
+        nextIndex: currentIndex + 2,
+        insertedTreeIndex: currentIndex + 1,
+        parentPath: selfPath(nextNode),
+        parentNode: isPseudoRoot ? null : nextNode,
+      };
+    }
       const extraNodeProps = expandParent ? { expanded: true } : {};
       const nextNode = {
         ...node,
@@ -739,7 +754,6 @@ function addNodeAtDepthAndIndex({
         parentPath: selfPath(nextNode),
         parentNode: isPseudoRoot ? null : nextNode,
       };
-    }
   }
 
   // If this is the target depth for the insertion,
@@ -894,7 +908,7 @@ export function insertNode({
   newNode,
   getNodeKey = () => {},
   ignoreCollapsed = true,
-  expandParent = false,
+  expandParent = true,
 }) {
   if (!treeData && targetDepth === 0) {
     return {
@@ -1085,7 +1099,7 @@ export function find({
   searchQuery,
   searchMethod,
   searchFocusOffset,
-  expandAllMatchPaths = false,
+  expandAllMatchPaths = true,
   expandFocusMatchPaths = true,
 }) {
   let matchCount = 0;
