@@ -1302,8 +1302,8 @@ describe('insertNode', () => {
         getNodeKey: keyFromKey,
       })
     ).toEqual({
-      parentNode: { key: 0, children: [{ key: 1 }] },
-      treeData: [{ key: 0, children: [{ key: 1 }] }],
+      parentNode: { key: 0, expanded: true, children: [{ key: 1 }] },
+      treeData: [{ key: 0, expanded: true, children: [{ key: 1 }] }],
       treeIndex: 1,
       path: [0, 1],
     });
@@ -1419,10 +1419,10 @@ describe('insertNode', () => {
         getNodeKey: keyFromTreeIndex,
       })
     ).toEqual({
-      parentNode: { key: 2, children: [{ key: 'new' }] },
+      parentNode: { key: 2, expanded: true, children: [{ key: 'new' }] },
       treeData: [
         { key: 0, expanded: true, children: [{ key: 1 }] },
-        { key: 2, children: [{ key: 'new' }] },
+        { key: 2, expanded: true, children: [{ key: 'new' }] },
       ],
       treeIndex: 3,
       path: [2, 3],
@@ -1459,10 +1459,13 @@ describe('insertNode', () => {
         getNodeKey: keyFromTreeIndex,
       })
     ).toEqual({
-      parentNode: { children: [{ key: 'new' }] },
+      parentNode: { expanded: true, children: [{ key: 'new' }] },
       treeData: [
         { children: [{}] },
-        { expanded: true, children: [{}, { children: [{ key: 'new' }] }] },
+        {
+          expanded: true,
+          children: [{}, { expanded: true, children: [{ key: 'new' }] }],
+        },
       ],
       treeIndex: 4,
       path: [1, 3, 4],
@@ -1482,10 +1485,13 @@ describe('insertNode', () => {
         getNodeKey: keyFromTreeIndex,
       })
     ).toEqual({
-      parentNode: { children: [{ key: 'new' }] },
+      parentNode: { expanded: true, children: [{ key: 'new' }] },
       treeData: [
         { children: [{}, {}, {}, {}] },
-        { expanded: true, children: [{}, { children: [{ key: 'new' }] }] },
+        {
+          expanded: true,
+          children: [{}, { expanded: true, children: [{ key: 'new' }] }],
+        },
       ],
       treeIndex: 4,
       path: [1, 3, 4],
@@ -1699,7 +1705,10 @@ describe('getTreeFromFlatData', () => {
   it('should handle [depth == 2] data', () => {
     [
       {
-        flatData: [{ key: 1, parentKey: rootKey }, { key: 2, parentKey: 1 }],
+        flatData: [
+          { key: 1, parentKey: rootKey },
+          { key: 2, parentKey: 1 },
+        ],
         expected: [
           {
             key: 1,
@@ -1764,7 +1773,10 @@ describe('getTreeFromFlatData', () => {
               {
                 key: 2,
                 parentKey: 1,
-                children: [{ key: 4, parentKey: 2 }, { key: 3, parentKey: 2 }],
+                children: [
+                  { key: 4, parentKey: 2 },
+                  { key: 3, parentKey: 2 },
+                ],
               },
               { key: 6, parentKey: 1 },
             ],
