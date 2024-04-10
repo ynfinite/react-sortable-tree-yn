@@ -383,6 +383,10 @@ class ReactSortableTree extends Component {
     depth: draggedDepth,
     minimumTreeIndex: draggedMinimumTreeIndex,
   }) {
+    if(!this.state.dragging) {
+      return;
+    }
+
     // Ignore this hover if it is at the same position as the last hover
     if (
       this.state.draggedDepth === draggedDepth &&
@@ -415,7 +419,7 @@ class ReactSortableTree extends Component {
         draggingTreeData: changeNodeAtPath({
           treeData: newDraggingTreeData,
           path: expandedParentPath.slice(0, -1),
-          newNode: ({ node }) => ({ ...node, expanded: true }),
+          newNode: ({ node }) => ({ ...node }),
           getNodeKey: this.props.getNodeKey,
         }),
         // reset the scroll focus so it doesn't jump back
