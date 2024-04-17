@@ -194,8 +194,8 @@ class ReactSortableTree extends Component {
 
     instanceProps.searchQuery = nextProps.searchQuery;
     instanceProps.searchFocusOffset = nextProps.searchFocusOffset;
-    newState.instanceProps = {...instanceProps, ...newState.instanceProps };
- 
+    newState.instanceProps = { ...instanceProps, ...newState.instanceProps };
+
     return newState;
   }
 
@@ -230,7 +230,9 @@ class ReactSortableTree extends Component {
     // it means that the drag was canceled or the dragSource dropped
     // elsewhere, and we should reset the state of this tree
     if (!monitor.isDragging() && this.state.draggingTreeData) {
-      setTimeout(() => {this.endDrag()});
+      setTimeout(() => {
+        this.endDrag();
+      });
     }
   }
 
@@ -383,7 +385,7 @@ class ReactSortableTree extends Component {
     depth: draggedDepth,
     minimumTreeIndex: draggedMinimumTreeIndex,
   }) {
-    if(!this.state.dragging) {
+    if (!this.state.dragging) {
       return;
     }
 
@@ -395,6 +397,7 @@ class ReactSortableTree extends Component {
       return;
     }
 
+    console.log('start dragHover.');
     this.setState(({ draggingTreeData, instanceProps }) => {
       // Fall back to the tree data if something is being dragged in from
       //  an external element
@@ -411,7 +414,15 @@ class ReactSortableTree extends Component {
 
       const rows = this.getRows(addedResult.treeData);
       const expandedParentPath = rows[addedResult.treeIndex].path;
-
+      /* eslint-disable no-underscore-dangle */
+      if (addedResult.parentNode && addedResult.parentNode.children.length === 1) {
+        this.toggleChildrenVisibility({
+          node: addedResult.parentNode,
+          path: expandedParentPath.slice(0, -1),
+        });
+        console.log("Finished getting parent children");
+      }
+      /* eslint-disable no-underscore-dangle */
       return {
         draggedNode,
         draggedDepth,
@@ -419,7 +430,7 @@ class ReactSortableTree extends Component {
         draggingTreeData: changeNodeAtPath({
           treeData: newDraggingTreeData,
           path: expandedParentPath.slice(0, -1),
-          newNode: ({ node }) => ({ ...node }),
+          newNode: ({ node }) => ({ ...node, expanded: true }),
           getNodeKey: this.props.getNodeKey,
         }),
         // reset the scroll focus so it doesn't jump back
