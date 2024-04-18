@@ -402,42 +402,115 @@ class ReactSortableTree extends Component {
       // Fall back to the tree data if something is being dragged in from
       //  an external element
       const newDraggingTreeData = draggingTreeData || instanceProps.treeData;
+      console.log('+++++++++++++++++++++++++++++++++++++');
+      console.log('instanceProps', instanceProps);
+      console.log('newDraggingTreeData', newDraggingTreeData);
+      console.log('draggedDepth', draggedDepth);
+      console.log('draggedMinimumTreeIndex', draggedMinimumTreeIndex);
+      console.log('+++++++++++++++++++++++++++++++++++++');
 
-      const addedResult = memoizedInsertNode({
-        treeData: newDraggingTreeData,
-        newNode: draggedNode,
-        depth: draggedDepth,
-        minimumTreeIndex: draggedMinimumTreeIndex,
-        expandParent: true,
-        getNodeKey: this.props.getNodeKey,
-      });
-
-      const rows = this.getRows(addedResult.treeData);
-      const expandedParentPath = rows[addedResult.treeIndex].path;
-      /* eslint-disable no-underscore-dangle */
-      if (addedResult.parentNode && addedResult.parentNode.children.length === 1) {
-        this.toggleChildrenVisibility({
-          node: addedResult.parentNode,
-          path: expandedParentPath.slice(0, -1),
-        });
-        console.log("Finished getting parent children");
+      const output = [];
+      function getDisplayItems(nestedData) {
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < nestedData.length; i++) {
+          const item = nestedData[i];
+          output.push(item);
+          if (
+            item.expanded &&
+            item.isFolder &&
+            item.children &&
+            typeof item.children !== 'function'
+          ) {
+            getDisplayItems(item.children);
+          }
+        }
       }
-      /* eslint-disable no-underscore-dangle */
-      return {
-        draggedNode,
-        draggedDepth,
-        draggedMinimumTreeIndex,
-        draggingTreeData: changeNodeAtPath({
+      getDisplayItems(newDraggingTreeData);
+      console.log('output', output);
+      /* eslint-disable no-else-return */
+      if (
+        output[draggedMinimumTreeIndex - 1] &&
+        typeof output[draggedMinimumTreeIndex - 1].children === 'function'
+      ) {
+        return new Promise(resolve => {
+          output[draggedMinimumTreeIndex - 1].children().then(loadedItems => {
+            console.log('loadedItems', loadedItems);
+
+            const addedResult = memoizedInsertNode({
+              treeData: newDraggingTreeData,
+              newNode: draggedNode,
+              depth: draggedDepth,
+              minimumTreeIndex: draggedMinimumTreeIndex,
+              expandParent: true,
+              getNodeKey: this.props.getNodeKey,
+            });
+
+            const rows = this.getRows(addedResult.treeData);
+            const expandedParentPath = rows[addedResult.treeIndex].path;
+            /* eslint-disable no-underscore-dangle */
+            // if (addedResult.parentNode && addedResult.parentNode.children.length === 1) {
+            //   this.toggleChildrenVisibility({
+            //     node: addedResult.parentNode,
+            //     path: expandedParentPath.slice(0, -1),
+            //   });
+            //   console.log("Finished getting parent children");
+            // }
+            /* eslint-disable no-underscore-dangle */
+            resolve({
+              draggedNode,
+              draggedDepth,
+              draggedMinimumTreeIndex,
+              draggingTreeData: changeNodeAtPath({
+                treeData: newDraggingTreeData,
+                path: expandedParentPath.slice(0, -1),
+                newNode: ({ node }) => ({ ...node, expanded: true }),
+                getNodeKey: this.props.getNodeKey,
+              }),
+              // reset the scroll focus so it doesn't jump back
+              // to a search result while dragging
+              searchFocusTreeIndex: null,
+              dragging: true,
+            });
+          });
+        });
+      } else {
+        const addedResult = memoizedInsertNode({
           treeData: newDraggingTreeData,
-          path: expandedParentPath.slice(0, -1),
-          newNode: ({ node }) => ({ ...node, expanded: true }),
+          newNode: draggedNode,
+          depth: draggedDepth,
+          minimumTreeIndex: draggedMinimumTreeIndex,
+          expandParent: true,
           getNodeKey: this.props.getNodeKey,
-        }),
-        // reset the scroll focus so it doesn't jump back
-        // to a search result while dragging
-        searchFocusTreeIndex: null,
-        dragging: true,
-      };
+        });
+
+        const rows = this.getRows(addedResult.treeData);
+        const expandedParentPath = rows[addedResult.treeIndex].path;
+        /* eslint-disable no-underscore-dangle */
+        // if (addedResult.parentNode && addedResult.parentNode.children.length === 1) {
+        //   this.toggleChildrenVisibility({
+        //     node: addedResult.parentNode,
+        //     path: expandedParentPath.slice(0, -1),
+        //   });
+        //   console.log("Finished getting parent children");
+        // }
+        /* eslint-disable no-underscore-dangle */
+        return {
+          draggedNode,
+          draggedDepth,
+          draggedMinimumTreeIndex,
+          draggingTreeData: changeNodeAtPath({
+            treeData: newDraggingTreeData,
+            path: expandedParentPath.slice(0, -1),
+            newNode: ({ node }) => ({ ...node, expanded: true }),
+            getNodeKey: this.props.getNodeKey,
+          }),
+          // reset the scroll focus so it doesn't jump back
+          // to a search result while dragging
+          searchFocusTreeIndex: null,
+          dragging: true,
+        };
+      }
+      /* eslint-disable no-else-return */
     });
   }
 
