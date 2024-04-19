@@ -397,18 +397,10 @@ class ReactSortableTree extends Component {
       return;
     }
 
-    console.log('start dragHover.');
     this.setState(({ draggingTreeData, instanceProps }) => {
       // Fall back to the tree data if something is being dragged in from
       //  an external element
-      const newDraggingTreeData = draggingTreeData || instanceProps.treeData;
-      console.log('+++++++++++++++++++++++++++++++++++++');
-      console.log('instanceProps', instanceProps);
-      console.log('newDraggingTreeData', newDraggingTreeData);
-      console.log('draggedDepth', draggedDepth);
-      console.log('draggedMinimumTreeIndex', draggedMinimumTreeIndex);
-      console.log('+++++++++++++++++++++++++++++++++++++');
-
+      let newDraggingTreeData = draggingTreeData || instanceProps.treeData;
       const output = [];
       function getDisplayItems(nestedData) {
         // eslint-disable-next-line no-plusplus
@@ -425,8 +417,23 @@ class ReactSortableTree extends Component {
           }
         }
       }
+
+      /* eslint-disable no-else-return */
+      function updateNestedData(data, idToUpdate, newChildren) {
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < data.length; i++) {
+          const item = data[i];
+          // eslint-disable-next-line no-underscore-dangle
+          if (item._id === idToUpdate) {
+            item.children = newChildren;
+          } else if (item.children) {
+            updateNestedData(item.children, idToUpdate, newChildren);
+          }
+        }
+        return data;
+      }
+      /* eslint-disable no-else-return */
       getDisplayItems(newDraggingTreeData);
-      console.log('output', output);
       /* eslint-disable no-else-return */
       if (
         output[draggedMinimumTreeIndex - 1] &&
@@ -434,7 +441,12 @@ class ReactSortableTree extends Component {
       ) {
         return new Promise(resolve => {
           output[draggedMinimumTreeIndex - 1].children().then(loadedItems => {
-            console.log('loadedItems', loadedItems);
+            newDraggingTreeData = updateNestedData(
+              newDraggingTreeData,
+              // eslint-disable-next-line no-underscore-dangle
+              output[draggedMinimumTreeIndex - 1]._id,
+              loadedItems
+            );
 
             const addedResult = memoizedInsertNode({
               treeData: newDraggingTreeData,
@@ -447,15 +459,6 @@ class ReactSortableTree extends Component {
 
             const rows = this.getRows(addedResult.treeData);
             const expandedParentPath = rows[addedResult.treeIndex].path;
-            /* eslint-disable no-underscore-dangle */
-            // if (addedResult.parentNode && addedResult.parentNode.children.length === 1) {
-            //   this.toggleChildrenVisibility({
-            //     node: addedResult.parentNode,
-            //     path: expandedParentPath.slice(0, -1),
-            //   });
-            //   console.log("Finished getting parent children");
-            // }
-            /* eslint-disable no-underscore-dangle */
             resolve({
               draggedNode,
               draggedDepth,
@@ -485,15 +488,6 @@ class ReactSortableTree extends Component {
 
         const rows = this.getRows(addedResult.treeData);
         const expandedParentPath = rows[addedResult.treeIndex].path;
-        /* eslint-disable no-underscore-dangle */
-        // if (addedResult.parentNode && addedResult.parentNode.children.length === 1) {
-        //   this.toggleChildrenVisibility({
-        //     node: addedResult.parentNode,
-        //     path: expandedParentPath.slice(0, -1),
-        //   });
-        //   console.log("Finished getting parent children");
-        // }
-        /* eslint-disable no-underscore-dangle */
         return {
           draggedNode,
           draggedDepth,
